@@ -194,24 +194,19 @@
             { q: "ශ්‍රී ලංකාවේ වර්තමාන සාමාන්්‍ය පරිගණක සාක්ෂරතාවය (2025) කොපමණද?", options: ["35.9%", "38.4%", "40.2%", "42.5%"], a: "38.4%", s: "2025 වසරේ මුල් මාස හය වන විට මෙරට සමස්ත පරිගණක සාක්ෂරතාවය 38.4% දක්වා වර්ධනය වී ඇත." }
         ];
 
-        let currentIdx = 0, score = 0, timer = 60, timerInterval, helpUsed = false;
+           let currentIdx = 0, score = 0, timer = 60, timerInterval, helpUsed = false;
         const synth = window.speechSynthesis;
-        let sinhalaVoice = null;
         const music = document.getElementById('bg-music-player');
         const sMusic = document.getElementById('summary-music-player');
-
-        function loadVoices() {
-            const voices = synth.getVoices();
-            sinhalaVoice = voices.find(v => v.lang.includes('si') || v.lang.includes('SI'));
-        }
-        if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = loadVoices;
 
         function exitToMain() {
             clearInterval(timerInterval);
             music.pause(); sMusic.pause();
             document.getElementById('quiz-area').classList.add('hidden');
             document.getElementById('top-nav').classList.add('hidden');
+            document.getElementById('result-screen').classList.add('hidden');
             document.getElementById('start-screen').classList.remove('hidden');
+            document.getElementById('summary-card').classList.add('hidden');
             currentIdx = 0; score = 0;
         }
 
@@ -220,19 +215,19 @@
             document.getElementById('quiz-area').classList.remove('hidden');
             document.getElementById('top-nav').classList.remove('hidden');
             music.src = playlist[0];
-            music.volume = 0.15;
+            music.volume = 0.12;
             music.play();
             sMusic.src = summaryMusic;
-            loadVoices();
             loadQuestion();
         }
 
         function speakQuiz(text) {
             synth.cancel();
             const msg = new SpeechSynthesisUtterance(text);
+            msg.lang = 'si-LK';
             msg.rate = 0.95;
             music.volume = 0.03;
-            msg.onend = () => { if(document.getElementById('summary-card').classList.contains('hidden')) music.volume = 0.15; };
+            msg.onend = () => { if(document.getElementById('summary-card').classList.contains('hidden')) music.volume = 0.12; };
             synth.speak(msg);
         }
 
@@ -243,16 +238,19 @@
             hideSummary();
             music.src = playlist[currentIdx % playlist.length];
             music.play();
+
             const data = quizData[currentIdx];
             document.getElementById('current-index-display').innerText = currentIdx + 1;
             document.getElementById('question-display').innerText = data.q;
             document.getElementById('progress-bar').style.width = ((currentIdx + 1) / quizData.length * 100) + "%";
+
             const grid = document.getElementById('options-grid');
             grid.innerHTML = '';
             document.getElementById('next-btn-main').classList.add('hidden');
             document.getElementById('feedback').classList.add('hidden');
             document.getElementById('btn-5050').classList.remove('opacity-50');
             document.getElementById('btn-summary').classList.remove('opacity-50');
+
             data.options.forEach(opt => {
                 const btn = document.createElement('button');
                 btn.className = "option-btn p-3 text-left glass-effect border border-slate-700 rounded-xl hover:border-blue-500 transition-all duration-200 hover:bg-blue-600/10 w-full active:scale-95 text-sm";
@@ -260,6 +258,7 @@
                 btn.onclick = () => checkAnswer(opt, btn);
                 grid.appendChild(btn);
             });
+
             startTimer();
             setTimeout(() => speakQuiz(`ප්‍රශ්න අංක ${currentIdx + 1}`), 800);
         }
@@ -268,7 +267,8 @@
             if (helpUsed || !document.getElementById('summary-card').classList.contains('hidden')) return;
             const data = quizData[currentIdx];
             let removed = 0;
-            document.querySelectorAll('.option-btn').forEach(btn => {
+            const btns = document.querySelectorAll('.option-btn');
+            btns.forEach(btn => {
                 if (btn.innerText !== data.a && removed < 2) {
                     btn.classList.add('border-yellow-500', 'text-yellow-500', 'opacity-30');
                     btn.disabled = true;
@@ -293,7 +293,7 @@
             sMusic.pause();
             if(!document.getElementById('quiz-area').classList.contains('hidden')) {
                 music.play();
-                music.volume = 0.15;
+                music.volume = 0.12;
             }
         }
 
@@ -320,21 +320,17 @@
                 score++;
                 btn.classList.add('bg-emerald-600/40', 'border-emerald-500');
                 showFeedback("නිවැරදියි! ✅", "bg-emerald-500/20 text-emerald-400 border-emerald-500/30");
-                speakQuiz("නිවැරදියි.");
             } else {
                 btn.classList.add('bg-red-600/40', 'border-red-500');
                 showFeedback(`වැරදියි. නිවැරදි පිළිතුර: ${correct}`, "bg-red-500/20 text-red-400 border-red-500/30");
-                speakQuiz("පිළිතුර වැරදියි.");
             }
             document.getElementById('next-btn-main').classList.remove('hidden');
         }
 
         function handleTimeUp() {
-            const correct = quizData[currentIdx].a;
             document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
             showFeedback(`කාලය අවසන්!`, "bg-orange-500/20 text-orange-400 border-orange-500/30 shadow-lg");
             document.getElementById('next-btn-main').classList.remove('hidden');
-            speakQuiz("කාලය අවසන්.");
         }
 
         function showFeedback(text, classes) {
@@ -345,7 +341,7 @@
 
         function nextQuestion() {
             if (currentIdx < quizData.length - 1) { currentIdx++; loadQuestion(); }
-            else showFinalResults();
+            else { showFinalResults(); }
         }
 
         function jumpToQuestion(event) {
@@ -360,7 +356,6 @@
             document.getElementById('top-nav').classList.add('hidden');
             document.getElementById('result-screen').classList.remove('hidden');
             document.getElementById('score-display').innerText = score;
-            speakQuiz(`අභියෝගය අවසන්. ඔබ ප්‍රශ්න පනහෙන් ${score} ක් නිවැරදිව සම්පූර්ණ කළා.`);
         }
     </script>
 </body>
