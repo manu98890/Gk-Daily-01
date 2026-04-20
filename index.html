@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GK Challenge 2026 </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans+Sinhala:wght@400;700&display=swap');
+        body { font-family: 'Inter', 'Noto Sans Sinhala', sans-serif; }
+        .glass-effect { background: rgba(30, 41, 59, 0.85); backdrop-filter: blur(12px); }
+        #progress-container:hover { cursor: pointer; height: 12px; transition: all 0.2s; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 text-white min-h-screen flex items-center justify-center p-4">
+
+    <audio id="bg-music-player" loop></audio>
+
+    <div id="main-card" class="max-w-3xl w-full glass-effect rounded-3xl shadow-2xl p-6 md:p-10 border border-slate-700/50 relative overflow-hidden">
+        
+        <div id="start-screen" class="text-center py-10">
+            <div class="mb-6 inline-block p-3 rounded-full bg-blue-500/10 border border-blue-500/20">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+            </div>
+            <h1 class="text-4xl font-bold mb-4 text-blue-400">GK Challenge 2026</h1>
+            <p class="text-slate-300 mb-8 text-lg font-medium">ගුරු විභාගය සඳහා වන පොදු පරීක්ෂණය - ප්‍රශ්න 50</p>
+            
+            <div class="mb-10 p-4 rounded-2xl bg-orange-500/10 border border-orange-500/30 inline-block pulse-animation">
+                <p class="text-orange-400 font-bold flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                    </svg>
+                    විශේෂ උපදෙසක්:
+                </p>
+                <p class="text-slate-200 text-sm mt-1 uppercase tracking-wider">උපරිම අත්දැකීම ලබා ගැනීමට Handsfree පාවිච්චි කරන්න</p>
+            </div>
+
+            <button onclick="initQuiz()" class="block w-full bg-blue-600 hover:bg-blue-500 text-white px-10 py-5 rounded-2xl font-bold text-xl shadow-lg transition-all transform hover:scale-105 active:scale-95 shadow-blue-500/20">
+                අභියෝගය අරඹන්න ➔
+            </button>
+        </div>
+
+        <div id="quiz-area" class="hidden">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex flex-col">
+                    <span class="text-blue-400 font-bold tracking-widest text-xs uppercase">Teaching Exam 2026</span>
+                    <h1 class="text-xl font-bold">ප්‍රශ්න පැනලය</h1>
+                </div>
+                <div id="timer-container" class="relative flex items-center justify-center w-16 h-16">
+                    <svg class="absolute w-full h-full transform -rotate-90">
+                        <circle cx="32" cy="32" r="28" stroke="currentColor" stroke-width="4" fill="transparent" class="text-slate-700" />
+                        <circle id="timer-circle" cx="32" cy="32" r="28" stroke="currentColor" stroke-width="4" fill="transparent" stroke-dasharray="175.9" stroke-dashoffset="0" class="text-orange-500 transition-all duration-1000 ease-linear" />
+                    </svg>
+                    <span id="timer-text" class="text-lg font-mono font-bold text-orange-500">60</span>
+                </div>
+            </div>
+
+            <div id="progress-container" onclick="jumpToQuestion(event)" class="w-full bg-slate-800 h-2 rounded-full mb-8 overflow-hidden relative cursor-pointer">
+                <div id="progress-bar" class="bg-blue-500 h-full transition-all duration-500 shadow-[0_0_10px_rgba(59,130,246,0.8)]" style="width: 0%"></div>
+            </div>
+
+            <div id="quiz-box">
+                <div class="mb-4 flex justify-between items-center">
+                    <span class="bg-blue-600/20 text-blue-400 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest border border-blue-500/20">ප්‍රශ්නය <span id="current-index-display">1</span>/50</span>
+                    <span id="music-tag" class="text-slate-500 text-[10px] italic">Playing: Arijit Singh Hit</span>
+                </div>
+                
+                <p id="question-display" class="text-xl md:text-2xl font-medium leading-relaxed mb-8 min-h-[100px] text-slate-100"></p>
+
+                <div id="options-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8"></div>
+                <div id="feedback" class="hidden p-4 rounded-xl font-bold text-center mb-4 border transition-all duration-300"></div>
+
+                <div class="flex justify-end">
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden bg-white text-slate-900 px-10 py-3 rounded-xl font-bold hover:bg-blue-400 hover:text-white transition-all shadow-lg active:scale-95">
+                        මීළඟ ප්‍රශ්නය ➔
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="result-screen" class="hidden text-center py-10">
+            <h2 class="text-4xl font-bold mb-4">සියල්ල සම්පූර්ණයි! 🏆</h2>
+            <div class="bg-blue-600/20 p-8 rounded-2xl mb-8 border border-blue-500/30">
+                <span id="score-display" class="text-7xl font-bold">0</span><span class="text-2xl text-slate-400"> / 50</span>
+            </div>
+            <button onclick="location.reload()" class="bg-blue-600 px-8 py-3 rounded-xl font-bold hover:bg-blue-500 transition-all">නැවත අරඹන්න</button>
+        </div>
+    </div>
+
+    <script>
+        // Direct MP3 Links for Arijit Singh Melodies (Publicly Hosted)
+        const playlist = [
+            "https://koshalworld.com/files/download/id/74119",
+            "https://koshalworld.com/files/download/id/79832", 
+            "https://koshalworld.com/files/download/id/79827", 
+            "https://koshalworld.com/files/download/id/79826", 
+            "https://koshalworld.com/files/download/id/71192" ,
+             "https://koshalworld.com/files/download/id/67884",
+             "https://koshalworld.com/files/download/id/67884",
+             "https://koshalworld.com/files/download/id/47097",
+             "https://koshalworld.com/files/download/id/14529",
+             "https://koshalworld.com/files/download/id/13749"
+              
+        ];
+
+        const quizData = [
+            { q: "විශ්ව විද්‍යාල වල සීමිත පාඨමාලාවන් සඳහා ඇති ස්ථාන සංඛ්‍යාවෙන් කොපමණ ප්‍රතිශතයක් දක්වා දිවයින මට්ටම කුසලතාවය මත පදනම්ව සිසුන් තෝරා ගැනීම සිදු කෙරේද?", options: ["30%", "40%", "55%", "60%"], a: "40%" },
+            { q: "අධ්‍යාපන පහසුකම් අතින් දුෂ්කර යැයි හඳුනා ගනු ලැබූ මෙරට දිස්ත්‍රික්ක ගණන කොපමණද?", options: ["12", "14", "16", "18"], a: "16" },
+            { q: "PISA හෝ TIMSS වැනි ගණිත විද්‍යා බුද්ධිය මැනෙන පරීක්ෂණ වලින් වර්තමානයේ වැඩිම සිසුන් සමත්වන රට කුමක්ද?", options: ["ඇමරිකාව", "ජපානය", "සිංගප්පූරුව", "චීනය"], a: "සිංගප්පූරුව" },
+            { q: "ළමා අපයෝජන හෝ වෙනත් ගැටලු දැනුම් දීමට හැකි ළමා උපකාරක සේවයේ කෙටි දුරකථන අංකය කුමක් ද?", options: ["1919", "1929", "1990", "119"], a: "1929" },
+            { q: "දේශප්‍රේමී පුරවැසියෙක් බිහිකිරීම දැක්වෙන්නේ මෙරට කීවන ජාතික අධ්‍යාපන ඉලක්කයෙන් ද?", options: ["05 වන", "06 වන", "07 වන", "08 වන"], a: "08 වන" },
+            { q: "අධ්‍යාපන ප්‍රකාශන දෙපාර්තමේන්තුව සතුව ඇති අලෙවි ප්‍රවර්ධන මධ්‍යස්ථාන ගණන කොපමණ ද?", options: ["04", "06", "08", "10"], a: "06" },
+            { q: "AI කෘත්‍රිම බුද්ධිය සංවර්ධනයේදී දැනට බහුලවම භාවිතා වන සහ වඩාත්ම ජනප්‍රිය ක්‍රමලේඛන භාෂාව වන්නේ කුමක් ද?", options: ["Java", "C++", "Python", "JavaScript"], a: "Python" },
+            { q: "ChatGPT මෙවලම ලෝකයේ වෙසෙන ජනතාවගේ භාවිතය සඳහා නිකුත් කරන ලද වර්ෂය කුමක් ද?", options: ["2020", "2021", "2022", "2023"], a: "2022" },
+            { q: "කෘත්‍රීම බුද්ධියෙහි පියා ලෙස සැලකෙන්නේ කවරෙක් ද?", options: ["Alan Turing", "John McCarthy", "Elon Musk", "Bill Gates"], a: "John McCarthy" },
+            { q: "ඉන්දියාවේ ප්‍රථම AI පාසල් ගුරු රොබෝවරිය හැඳින්වූ නම කුමක් ද?", options: ["Siri", "Sophia", "Iris", "Alexa"], a: "Iris" },
+            { q: "වැඩි භාෂා ගණනක ප්‍රවීණතාව ඇති රජයේ සේවකයන්ට දිරි දීමනා ගෙවීමක් හඳුන්වා දුන් වර්ෂය කුමක් ද?", options: ["1995", "1998", "2002", "2005"], a: "1998" },
+            { q: "පාසලට ඇතුළු වීමේ වයස අවුරුදු 06 බවට පත් කළ වර්ෂය කුමක් ද?", options: ["1970", "1972", "1980", "1982"], a: "1972" },
+            { q: "බෞද්ධාලෝක මාවතේ විෂයමාලා සංවර්ධන මධ්‍යස්ථානයක් පිහිටුවීම සිදු කළ වර්ෂය කුමක් ද?", options: ["1965", "1967", "1970", "1972"], a: "1967" },
+            { q: "මෙරට නිදහස් අධ්‍යාපනයේ පියා ලෙස සැලකෙන කන්නන්ගර මහතා අභාවප්‍රාප්ත වූ වර්ෂය කුමක් ද?", options: ["1960", "1965", "1969", "1972"], a: "1969" },
+            { q: "History of Education in Sri Lanka කෘතියේ රචකයා කවරෙක් ද?", options: ["Kannangara", "Sumathipala", "Jayasuriya", "Thero"], a: "Sumathipala" },
+            { q: "පාසල් විෂයමාලාව E5 ආකෘතිය අනුව සංශෝධනය කළ වර්ෂය කුමක් ද?", options: ["2005", "2007", "2010", "2012"], a: "2007" },
+            { q: "ශ්‍රී ලංකාවේ පරිගණක සාක්ෂරතාවය ඉහළම හා පහළම දිස්ත්‍රික්ක පිළිවෙලින් කවරේද?", options: ["කොළඹ හා නුවරඑළිය", "කොළඹ හා මන්නාරම", "ගම්පහ හා මන්නාරම", "මහනුවර හා මුලතිව්"], a: "කොළඹ හා මන්නාරම" },
+            { q: "ශ්‍රී ලංකාවේ ඩිජිටල් සාක්ෂරතාවය පහළම දිස්ත්‍රික්කය කුමක්ද?", options: ["මන්නාරම", "නුවරඑළිය", "මඩකලපුව", "මුලතිව්"], a: "නුවරඑළිය" },
+            { q: "Democracy and Education ග්‍රන්ථයේ රචකයා කවරෙක් ද?", options: ["Plato", "John Dewey", "Rousseau", "Aristotle"], a: "John Dewey" },
+            { q: "ශ්‍රී ලංකාවේ ඉහළම හා පහළම සාක්ෂරතාවයන් සහිත දිස්ත්‍රික්ක කවරේද?", options: ["කොළඹ හා මඩකලපුව", "ගම්පහ හා මඩකලපුව", "ගම්පහ හා නුවරඑළිය", "කොළඹ හා මුලතිව්"], a: "ගම්පහ හා මඩකලපුව" },
+            { q: "සති පාසල් සංකල්පයේ නිර්මාතෘවරයා කවරෙක් ද?", options: ["සෝම හිමි", "ධම්මජීව හිමි", "කුරිරුගම හිමි", "අනුනායක හිමි"], a: "ධම්මජීව හිමි" },
+            { q: "GEMP ව්‍යාපෘතිය සඳහා ආධාර සැපයූ ආයතනය කුමක්ද?", options: ["ADB", "World Bank", "UNICEF", "UNESCO"], a: "World Bank" },
+            { q: "SESIP වැඩසටහන සඳහා අරමුදල් ලබාදෙන මූලික ආයතනය කුමක්ද?", options: ["World Bank", "KOICA", "ADB", "EXIM Bank"], a: "ADB" },
+            { q: "KOICA ව්‍යාපෘතිය අයත් වන්නේ කුමන රටටද?", options: ["ජපානය", "දකුණු කොරියාව", "චීනය", "සිංගප්පූරුව"], a: "දකුණු කොරියාව" },
+            { q: "ප්‍රථම ශ්‍රේණියට සිසුන් ඇතුළත් කිරීමේදී වැඩිම ලකුණු මට්ටම හිමිවන පදනම කුමක්ද?", options: ["ආදි ශිෂ්‍ය", "සහෝදර", "ස්ථානාසන්න", "අධ්‍යාපන සේවක"], a: "ස්ථානාසන්න" },
+            { q: "2025 වසරේ ඇරඹූ පාසල් ආපදා අවදානම් දර්ශකය හඳුන්වන්නේ කෙසේද?", options: ["SDRI", "PISA", "GEMP", "TIMSS"], a: "SDRI" },
+            { q: "2024 සංගණනයට අනුව ශ්‍රී ලංකාවේ ඩිජිටල් සාක්ෂරතාවය කොපමණද?", options: ["35.9%", "65.0%", "67.6%", "70.8%"], a: "67.6%" },
+            { q: "SBPTD වැඩසටහන ඇරඹූ වර්ෂය?", options: ["2012", "2016", "2019", "2021"], a: "2019" },
+            { q: "ජාතික කෞතුකාගාරය අයත් වන්නේ කුමන අමාත්‍යාංශයට ද?", options: ["සංස්කෘතික", "අධ්‍යාපන", "සංචාරක", "ස්වදේශ කටයුතු"], a: "අධ්‍යාපන" },
+            { q: "ගුරුවරුන් සඳහා වන කාර්යක්ෂමතා කඩඉම් ගණන කොපමණ ද?", options: ["01", "02", "03", "04"], a: "03" },
+            { q: "කාර්යක්ෂමතා කඩඉම් විෂය නිර්දේශයේ ඇති මුළු මොඩියුල ගණන කොපමණ ද?", options: ["05", "08", "10", "12"], a: "10" },
+            { q: "පාසලක සිටිය යුතු අවම මුළු ශිෂ්‍ය සංඛ්‍යාව කොපමණද?", options: ["1000", "1500", "2000", "2500"], a: "2000" },
+            { q: "ශ්‍රී ලංකාවේ සාක්ෂරතාවය 90% ඉක්මවා වාර්තා වූ ප්‍රථම සංගණනය?", options: ["1981", "1991", "2001", "2011"], a: "2001" },
+            { q: "පොළී රහිත ශිෂ්‍ය ණය යෝජනා ක්‍රමයක් ආරම්භ කළ වර්ෂය?", options: ["2015", "2017", "2019", "2021"], a: "2017" },
+            { q: "නුවරඑළිය දිස්ත්‍රික්කයේ කිසිදා පාසල් නොගිය ජනගහන ප්‍රතිශතය කොපමණද?", options: ["6.6%", "8.3%", "10.2%", "5.0%"], a: "8.3%" },
+            { q: "2024 සංගණනයට අනුව ශ්‍රී ලංකාවේ පුරුෂාධිපත්‍යය අගය?", options: ["90.5", "93.3", "95.2", "100"], a: "93.3" },
+            { q: "ඉංග්‍රීසි භාෂා සාක්ෂරතාවය අවම දිස්ත්‍රික්කය කුමක්ද?", options: ["මුලතිව්", "මන්නාරම", "නුවරඑළිය", "මඩකලපුව"], a: "මුලතිව්" },
+            { q: "ගුරු සේවා ව්‍යවස්ථා සංග්‍රහය 3 වන වරට සංශෝධනය කළ වර්ෂය?", options: ["2019", "2021", "2024", "2025"], a: "2025" },
+            { q: "ප්‍රථම ශ්‍රේණියට ඇතුළත් කිරීමේ මණ්ඩලයේ සිටිය යුතු ආදි ශිෂ්‍ය සංගම් නියෝජිතයින් ගණන?", options: ["01", "02", "03", "04"], a: "01" },
+            { q: "ගුරු ආයතන ශාඛාවේ වත්මන් ජ්‍යෙෂ්ඨ සහකාර ලේකම්?", options: ["කළුආරච්චි", "පෙරේරා", "දිසානායක", "අල්විස්"], a: "කළුආරච්චි" },
+            { q: "2024 දී තෘතීයික අධ්‍යාපනය ඉහළම සුදුසුකම ලෙස වාර්තා කළ ප්‍රතිශතය?", options: ["18.2%", "22.5%", "26.2%", "30.0%"], a: "26.2%" },
+            { q: "පරිගණක සාක්ෂරතාවය ඉහළම වයස් කාණ්ඩය කුමක්ද?", options: ["15-19", "20-24", "25-29", "30-34"], a: "20-24" },
+            { q: "ළමා මිතුරු පාසල් සංකල්පයේ ප්‍රමුඛතාවය කුමක්ද?", options: ["විභාග", "ප්‍රතිශක්තිකරණය", "ක්‍රීඩා", "ගොඩනැගිලි"], a: "ප්‍රතිශක්තිකරණය" },
+            { q: "ගුරු වෘත්තීය මට්ටම් හඳුන්වා දීමට අදාළ චක්‍රලේඛය නිකුත් කළ වර්ෂය?", options: ["2014", "2016", "2018", "2020"], a: "2016" },
+            { q: "නිදහස් අධ්‍යාපනය යනු දැනුම නොමිලේ ලබා දීමයි යන ප්‍රකාශය කාගේද?", options: ["Dewey", "Rousseau", "Socrates", "Plato"], a: "Rousseau" },
+            { q: "ICT Hub ව්‍යාපෘතියට අරමුදල් සපයන බැංකුව?", options: ["World Bank", "ADB", "EXIM Bank", "Central Bank"], a: "EXIM Bank" },
+            { q: "බැඳුම්කර වංචාව සෙවීමට පත්කළ කොමිසමේ සභාපති?", options: ["ජයවර්ධන", "විජයවර්ධන", "සමරතුංග", "ගුණතිලක"], a: "ජයවර්ධන" },
+            { q: "පාසල් ළමුන් 2000 ක් සිටින පාසලක ප්‍රාථමික අංශයේ අවම සිසුන් ගණන?", options: ["500", "800", "1000", "1200"], a: "1000" },
+            { q: "UNICEF ආයතනය මෙරට පූර්ව ළමාවිය අධ්‍යාපනයට මැදිහත් වූ කාලය?", options: ["1940 දශකය", "1950 දශකය", "1960 දශකය", "1970 දශකය"], a: "1950 දශකය" },
+            { q: "ශ්‍රී ලංකාවේ වර්තමාන සාමාන්්‍ය පරිගණක සාක්ෂරතාවය කොපමණද?", options: ["35.9%", "38.4%", "40.2%", "42.5%"], a: "38.4%" }
+        ];
+
+        let currentIdx = 0;
+        let score = 0;
+        let timer = 60;
+        let timerInterval;
+        const synth = window.speechSynthesis;
+        let sinhalaVoice = null;
+        const music = document.getElementById('bg-music-player');
+
+        // Load voices
+        function loadVoices() {
+            const voices = synth.getVoices();
+            sinhalaVoice = voices.find(v => v.lang.includes('si') || v.lang.includes('SI'));
+        }
+        if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = loadVoices;
+
+        function initQuiz() {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz-area').classList.remove('hidden');
+            
+            // Start Music with low volume
+            music.src = playlist[0];
+            music.volume = 0.15; // සින්දුවේ සද්දේ අඩුවෙන් (15%)
+            music.play();
+            
+            loadVoices();
+            loadQuestion();
+        }
+
+        function speakQuiz(text) {
+            synth.cancel();
+            const msg = new SpeechSynthesisUtterance(text);
+            if (sinhalaVoice) msg.voice = sinhalaVoice;
+            msg.lang = 'si-LK';
+            msg.rate = 0.95;
+            
+            // Audio Ducking: Voice ඇහෙන කොට සින්දුවේ සද්දේ 3% ට අඩු කරනවා
+            music.volume = 0.03;
+            msg.onend = () => { music.volume = 0.15; }; // Voice ඉවර වුණාම ආයේ 15% ට එනවා
+            
+            synth.speak(msg);
+        }
+
+        function loadQuestion() {
+            clearInterval(timerInterval);
+            timer = 60;
+            updateTimerUI();
+
+            // Change music track for each question to keep it interesting
+            music.src = playlist[currentIdx % playlist.length];
+            music.play();
+
+            const data = quizData[currentIdx];
+            document.getElementById('current-index-display').innerText = currentIdx + 1;
+            document.getElementById('question-display').innerText = data.q;
+            document.getElementById('progress-bar').style.width = ((currentIdx + 1) / quizData.length * 100) + "%";
+
+            const grid = document.getElementById('options-grid');
+            grid.innerHTML = '';
+            document.getElementById('next-btn').classList.add('hidden');
+            document.getElementById('feedback').classList.add('hidden');
+
+            data.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "option-btn p-4 text-left glass-effect border border-slate-700 rounded-xl hover:border-blue-500 transition-all duration-200 hover:bg-blue-600/10 w-full active:scale-95";
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(opt, btn);
+                grid.appendChild(btn);
+            });
+
+            startTimer();
+            setTimeout(() => speakQuiz(`ප්‍රශ්න අංක ${currentIdx + 1}. ${data.q}`), 800);
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timer--;
+                updateTimerUI();
+                if (timer <= 0) { clearInterval(timerInterval); handleTimeUp(); }
+            }, 1000);
+        }
+
+        function updateTimerUI() {
+            document.getElementById('timer-text').innerText = timer;
+            const circle = document.getElementById('timer-circle');
+            const offset = (timer / 60) * 175.9;
+            circle.style.strokeDashoffset = 175.9 - offset;
+        }
+
+        function checkAnswer(selected, btn) {
+            clearInterval(timerInterval);
+            const correct = quizData[currentIdx].a;
+            const allBtns = document.querySelectorAll('.option-btn');
+            allBtns.forEach(b => b.disabled = true);
+
+            if (selected === correct) {
+                score++;
+                btn.classList.add('bg-emerald-600/40', 'border-emerald-500', 'shadow-[0_0_15px_rgba(16,185,129,0.4)]');
+                showFeedback("නිවැරදියි! ✅", "bg-emerald-500/20 text-emerald-400 border-emerald-500/30");
+                speakQuiz("නිවැරදියි.");
+            } else {
+                btn.classList.add('bg-red-600/40', 'border-red-500', 'shadow-[0_0_15px_rgba(239,68,68,0.4)]');
+                showFeedback(`වැරදියි. නිවැරදි පිළිතුර: ${correct}`, "bg-red-500/20 text-red-400 border-red-500/30");
+                speakQuiz("පිළිතුර වැරදියි.");
+            }
+            document.getElementById('next-btn').classList.remove('hidden');
+        }
+
+        function handleTimeUp() {
+            const correct = quizData[currentIdx].a;
+            document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+            showFeedback(`කාලය අවසන්! නිවැරදි පිළිතුර: ${correct}`, "bg-orange-500/20 text-orange-400 border-orange-500/30 shadow-[0_0_15px_rgba(249,115,22,0.3)]");
+            document.getElementById('next-btn').classList.remove('hidden');
+            speakQuiz("කාලය අවසන්.");
+        }
+
+        function showFeedback(text, classes) {
+            const fb = document.getElementById('feedback');
+            fb.innerText = text;
+            fb.className = `p-4 rounded-xl font-bold text-center mb-4 ${classes}`;
+            fb.classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            if (currentIdx < quizData.length - 1) {
+                currentIdx++;
+                loadQuestion();
+            } else {
+                showFinalResults();
+            }
+        }
+
+        function jumpToQuestion(event) {
+            const container = document.getElementById('progress-container');
+            const rect = container.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const percentage = x / rect.width;
+            currentIdx = Math.floor(percentage * quizData.length);
+            loadQuestion();
+        }
+
+        function showFinalResults() {
+            music.pause();
+            document.getElementById('quiz-area').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+            document.getElementById('score-display').innerText = score;
+            speakQuiz(`අභියෝගය අවසන්. ඔබ ප්‍රශ්න පනහෙන් ${score} ක් නිවැරදිව සම්පූර්ණ කළා.`);
+        }
+    </script>
+</body>
+</html>
